@@ -1,9 +1,9 @@
 # Import the module for direct use
-Import-Module .\HelloWorld.psd1 -Force
+Import-Module HelloWorld -Force
 
 # Test direct function calls
 Write-Hello
-Write-Hello -Name Byron
+Write-Hello -Name John
 Get-HelloInfo
 Get-Help Write-Hello
 
