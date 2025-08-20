@@ -1,9 +1,3 @@
-$script:CommandMap = @{
-    "Help"  = { param($Command) if ($Command) { Show-HelloHelp -Command $Command } else { Show-HelloHelp } }
-    "Hello" = { param($Name) Write-Hello @PSBoundParameters }
-    "Info"  = { Get-HelloInfo }
-}
-
 function Write-Hello {
 <#
 .SYNOPSIS
@@ -61,48 +55,23 @@ function Show-HelloHelp {
 
     if (-not $Command) {
         Write-Host "Available commands:" -ForegroundColor Cyan
-        ($script:CommandMap.Keys | Sort-Object) | ForEach-Object { "  $_" }
-        "`nUsage:`n  HelloWorld Help <Command>`n  HelloWorld <Command> [options]"
+        Write-Host "  Hello  - Write a greeting message"
+        Write-Host "  Info   - Get module information"
+        Write-Host "  Help   - Show this help"
         return
     }
 
-    # Try to map friendly names to function help
-    $nameToFunc = @{
-        'Hello' = 'Write-Hello'
-        'Info'  = 'Get-HelloInfo'
-        'Help'  = 'Show-HelloHelp'
-    }
-
-    if ($nameToFunc.ContainsKey($Command)) {
-        Get-Help $nameToFunc[$Command] -Full
-    } else {
-        Write-Warning "Unknown command: $Command"
-        Show-HelloHelp
+    # Map friendly names to function help
+    switch ($Command) {
+        'Hello' { Get-Help Write-Hello -Full | Out-String | Write-Host }
+        'Info'  { Get-Help Get-HelloInfo -Full | Out-String | Write-Host }
+        'Help'  { Get-Help Show-HelloHelp -Full | Out-String | Write-Host }
+        default {
+            Write-Warning "Unknown command: $Command"
+            Show-HelloHelp
+        }
     }
 }
 
-function HelloWorld {
-    [CmdletBinding(PositionalBinding=$false)]
-    param(
-        [Parameter(ValueFromRemainingArguments)]
-        [string[]]$RemainingArgs
-    )
-
-    if (-not $RemainingArgs -or $RemainingArgs[0] -in @('help','-h','--help','/?')) {
-        $sub = if ($RemainingArgs.Count -gt 1) { $RemainingArgs[1] } else { $null }
-        return Show-HelloHelp -Command $sub
-    }
-
-    $cmd  = $RemainingArgs[0]
-    $rest = if ($RemainingArgs.Count -gt 1) { $RemainingArgs[1..($RemainingArgs.Count-1)] } else { @() }
-
-    if ($script:CommandMap.ContainsKey($cmd)) {
-        & $script:CommandMap[$cmd] @rest
-    }
-    else {
-        Write-Warning "Unknown command: $cmd. Use 'HelloWorld Help' for available commands."
-    }
-}
-
-# Only export the intended public functions
-Export-ModuleMember -Function HelloWorld, Write-Hello, Get-HelloInfo, Show-HelloHelp
+# Only export the actual PowerShell functions
+Export-ModuleMember -Function Write-Hello, Get-HelloInfo, Show-HelloHelp
