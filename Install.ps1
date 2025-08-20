@@ -3,8 +3,6 @@
     Installs the HelloWorld module system-wide
 .DESCRIPTION
     Installs module for all users and adds CLI wrapper to PATH
-.PARAMETER Dev
-    If specified, creates symlinks for development instead of copying files
 .EXAMPLE
     .\Install.ps1
 #>
